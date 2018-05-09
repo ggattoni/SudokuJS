@@ -1,11 +1,12 @@
+'use strict'
 function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
 
 class SudokuComponent {
 
-    constructor() {
-        this.numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    constructor(n) {
+        this.numbers = n || [0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     setBox(index, num) {
@@ -20,32 +21,32 @@ class SudokuComponent {
     }
 
     isFilled(index) {
-        return this.numbers[index] != 0;
+        return this.numbers[index];
     }
 
     missingNumbers() {
+        /*
         var result = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-        for (i = 0; i < 9; i++) {
+        for (var i = 0; i < 9; i++) {
             if (this.isFilled(i)) {
                 var num = this.getBox(i);
                 var index = result.indexOf(num);
                 result.splice(index, 1);
             }
         }
-        return result;
+        return result;*/
+        return [1,2,3,4,5,6,7,8,9].filter((e) => {
+            return !this.numbers.filter((e)=>{
+                return e != 0;
+            }).includes(e);
+        });
     }
 }
 
 class Sudoku {
 
     constructor() {
-        this.grid = new Array(9);
-        for (i = 0; i < 9; i++) {
-            this.grid[i] = new Array(9);
-            for (j = 0; j < 9; j++) {
-                this.grid[i][j] = 0;
-            }
-        }
+        this.grid = Array.from({length: 9}, (v, k) => Array.from({length: 9}, (v, k) => 0))
     }
 
     getBox(row, column) {
@@ -53,6 +54,9 @@ class Sudoku {
     }
 
     setBox(row, column, num) {
+        if(this.grid[row].indexOf(num) > -1){
+            //throw "Error" + this.grid + " " + num;
+        }
         this.grid[row][column] = num;
     }
 
@@ -66,8 +70,8 @@ class Sudoku {
 
     getColumn(columnIndex) {
         var column = [];
-        for (i = 0; i < 9; i++) {
-            column.push(this.grid[i][columnIndex]);
+        for (var i = 0; i < 9; i++) {
+            column.push(this.getBox(1, columnIndex));
         }
         return new SudokuComponent(column);
     }
@@ -76,8 +80,8 @@ class Sudoku {
         var square = [];
         var rowStart = Math.floor(rowIndex / 3);
         var columnStart = Math.floor(colIndex / 3);
-        for (i = rowStart; i < rowStart + 3; i++) {
-            for (j = columnStart; j < columnStart + 3; j++) {
+        for (var i = rowStart; i < rowStart + 3; i++) {
+            for (var j = columnStart; j < columnStart + 3; j++) {
                 square.push(this.grid[i][j]);
             }
         }
@@ -89,8 +93,8 @@ class Sudoku {
         var columnMissing = this.getColumn(columnIndex).missingNumbers();
         var squareMissing = this.getSquare(rowIndex, columnIndex).missingNumbers();
         var result = [];
-        for (i = 1; i <= 9; i++) {
-            if (rowMissing.indexOf(i) > -1 && columnMissing.indexOf(i) > -1 && squareMissing.indexOf(i)) {
+        for (var i = 1; i <= 9; i++) {
+            if (rowMissing.includes(i) && columnMissing.includes(i) && squareMissing.includes(i)) {
                 result.push(i);
             }
         }
@@ -102,13 +106,13 @@ class Sudoku {
     }
 
     generate() {
-        for (i = 0; i < 9; i++) {
-            for (j = 0; j < 9; j++) {
+        for (var i = 0; i < 9; i++) {
+            for (var j = 0; j < 9; j++) {
                 /** If I'm backtracking, I found the box filled.
                  *  So I save the number before resetting the box
                  *  and check if it's the only choice left.
                  */
-                prevNum = this.getBox(i, j);
+                var prevNum = this.getBox(i, j);
 
                 if (this.isFilled(i, j)) {
                     this.resetBox(i, j);
@@ -148,23 +152,25 @@ class Sudoku {
         }
     }
 
-    show() {
+ show() {
         var line = "+---+---+---+---+---+---+---+---+---+\n";
         var midline = "|   |   |   |   |   |   |   |   |   |\n";
         var startline = "| ";
         var inline = " | ";
-        var endline = " |\n";
-        for (i = 0; i < 9; i++) {
+        var endline = "\n";
+        var oneRow = "";
+        for (var i = 0; i < 9; i++) {
             console.log(line);
             console.log(midline);
-            console.log(startline);
-            for (j = 0; j < 9; j++) {
-                console.log(this.getBox[i][j]);
-                if (i != 8) {
-                    console.log(inline);
+            oneRow = startline;
+            for (var j = 0; j < 9; j++) {
+                oneRow += this.getBox(i, j);
+                if (i != 9) {
+                    oneRow += inline;
                 }
             }
-            console.log(endline);
+            oneRow += endline
+            console.log(oneRow);
             console.log(midline);
         }
         console.log(line);
@@ -172,5 +178,10 @@ class Sudoku {
 
 }
 
+
 var sudoku = new Sudoku();
-sudoku.show();
+
+//sudoku.generate();
+//sudoku.show();
+console.log(sudoku.missingNumbers(1, 3))
+
