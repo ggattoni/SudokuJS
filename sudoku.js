@@ -5,8 +5,8 @@ function getRandomInt(max) {
 
 class SudokuComponent {
 
-    constructor() {
-        this.numbers = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    constructor(n) {
+        this.numbers = n || [0, 0, 0, 0, 0, 0, 0, 0, 0];
     }
 
     setBox(index, num) {
@@ -21,10 +21,11 @@ class SudokuComponent {
     }
 
     isFilled(index) {
-        return this.numbers[index] != 0;
+        return this.numbers[index];
     }
 
     missingNumbers() {
+        /*
         var result = [1, 2, 3, 4, 5, 6, 7, 8, 9];
         for (var i = 0; i < 9; i++) {
             if (this.isFilled(i)) {
@@ -33,20 +34,19 @@ class SudokuComponent {
                 result.splice(index, 1);
             }
         }
-        return result;
+        return result;*/
+        return [1,2,3,4,5,6,7,8,9].filter((e) => {
+            return !this.numbers.filter((e)=>{
+                return e != 0;
+            }).includes(e);
+        });
     }
 }
 
 class Sudoku {
 
     constructor() {
-        this.grid = new Array(9);
-        for (var i = 0; i < 9; i++) {
-            this.grid[i] = new Array(9);
-            for (var j = 0; j < 9; j++) {
-                this.grid[i][j] = 0;
-            }
-        }
+        this.grid = Array.from({length: 9}, (v, k) => Array.from({length: 9}, (v, k) => 0))
     }
 
     getBox(row, column) {
@@ -54,6 +54,9 @@ class Sudoku {
     }
 
     setBox(row, column, num) {
+        if(this.grid[row].indexOf(num) > -1){
+            //throw "Error" + this.grid + " " + num;
+        }
         this.grid[row][column] = num;
     }
 
@@ -68,7 +71,7 @@ class Sudoku {
     getColumn(columnIndex) {
         var column = [];
         for (var i = 0; i < 9; i++) {
-            column.push(this.grid[i][columnIndex]);
+            column.push(this.getBox(1, columnIndex));
         }
         return new SudokuComponent(column);
     }
@@ -91,7 +94,7 @@ class Sudoku {
         var squareMissing = this.getSquare(rowIndex, columnIndex).missingNumbers();
         var result = [];
         for (var i = 1; i <= 9; i++) {
-            if (rowMissing.indexOf(i) > -1 && columnMissing.indexOf(i) > -1 && squareMissing.indexOf(i)) {
+            if (rowMissing.includes(i) && columnMissing.includes(i) && squareMissing.includes(i)) {
                 result.push(i);
             }
         }
@@ -175,6 +178,10 @@ class Sudoku {
 
 }
 
+
 var sudoku = new Sudoku();
-sudoku.generate();
-sudoku.show();
+
+//sudoku.generate();
+//sudoku.show();
+console.log(sudoku.missingNumbers(1, 3))
+
